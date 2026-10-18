@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f7fb">
+    <title>Haven — Hostel Management</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="layout">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Haven home">
+          <span class="brand-mark" aria-hidden="true">H</span>
+          <span>haven<span class="brand-period">.</span></span>
+        </a>
+        <span class="environment"><span class="status-dot"></span>Hostel Management System</span>
+        <nav id="app-navigation" class="app-navigation" aria-label="Main navigation" hidden>
+          <a id="dashboard-link" href="/dashboard">Dashboard</a>
+          <a id="reports-link" href="/reports" hidden>Reports</a>
+          <a id="admin-link" href="/admin" hidden>Admin</a>
+          <a id="implementation-report-link" href="/implementation-report" hidden>Implementation report</a>
+          <button class="admin-action" id="logout-button" type="button">Sign out</button>
+        </nav>
+      </header>
+
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">HOSTEL OPERATIONS, MADE CLEAR</p>
+          <h1 id="page-title">A better home<br>for hostel operations.</h1>
+          <p class="intro">A secure hostel workspace for Haven Hall registration, room allocation, check-in/out, reporting, and role-based account management.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#roadmap">Explore the build plan <span aria-hidden="true">↓</span></a>
+            <span class="build-status"><span class="status-dot"></span> Hostel operations ready</span>
+          </div>
+        </div>
+        <aside class="preview-card auth-card" aria-labelledby="auth-title">
+          <div class="auth-tabs" role="tablist" aria-label="Account options">
+            <button class="auth-tab active" type="button" id="login-tab" role="tab" aria-selected="true" aria-controls="login-panel">Sign in</button>
+            <button class="auth-tab" type="button" id="register-tab" role="tab" aria-selected="false" aria-controls="register-panel">Create account</button>
+          </div>
+          <div id="auth-message" class="auth-message" role="status" aria-live="polite" hidden></div>
+          <form id="login-panel" class="auth-form" aria-labelledby="login-tab">
+            <p class="card-kicker">WELCOME BACK</p>
+            <h2 id="auth-title">Sign in to Haven's Hostel</h2>
+            <label for="login-email">Email address</label>
+            <input id="login-email" name="email" type="email" autocomplete="email" required maxlength="254">
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128">
+            <button class="button button-primary auth-submit" type="submit">Continue with email</button>
+            <p class="auth-hint">Admin sign-in: use an administrator account.</p>
+          </form>
+          <form id="register-panel" class="auth-form" aria-labelledby="register-tab" hidden>
+            <p class="card-kicker">GET STARTED</p>
+            <h2>Create your account</h2>
+            <label for="register-username">Your name</label>
+            <input id="register-username" name="username" autocomplete="name" required minlength="3" maxlength="32" pattern="[A-Za-z0-9][A-Za-z0-9._ -]{1,30}[A-Za-z0-9]" title="Use 3-32 letters, numbers, spaces, periods, underscores, or hyphens.">
+            <label for="register-email">Email address</label>
+            <input id="register-email" name="email" type="email" autocomplete="email" required maxlength="254">
+            <label for="register-role">Choose your role</label>
+            <select id="register-role" name="role" required>
+              <option value="student" selected>Student</option>
+              <option value="hall_president">Hall President</option>
+              <option value="hall_master">Hall Master / Mistress</option>
+            </select>
+            <label for="register-password">Password</label>
+            <input id="register-password" name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
+            <button class="button button-primary auth-submit" type="submit">Create account</button>
+            <p class="auth-hint">Choose any password with at least 8 characters. No special symbols are required. Your password is securely hashed. Student accounts are active immediately; Hall President and Hall Master/Mistress requests must be approved by a Main Admin. Main Admin accounts are created separately by the system administrator.</p>
+          </form>
+          <form id="otp-panel" class="auth-form" hidden>
+            <p class="card-kicker">SECOND STEP</p>
+            <h2>Check your code</h2>
+            <p class="card-description">Enter the six-digit verification code for <strong id="otp-email"></strong>. It expires in five minutes.</p>
+            <label for="otp-code">Email verification code</label>
+            <input id="otp-code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required>
+            <button class="button button-primary auth-submit" type="submit">Verify and sign in</button>
+            <button class="text-button" id="back-to-login" type="button">Back to sign in</button>
+          </form>
+          <div id="signed-in-panel" class="auth-form" hidden>
+            <p class="card-kicker">SIGNED IN</p>
+            <h2>Welcome, <span id="signed-in-name"></span></h2>
+            <p class="card-description">Your account role is <strong id="signed-in-role"></strong>.</p>
+          </div>
+          <div class="auth-footnote"><span class="shield" aria-hidden="true">✓</span><span>Argon2id password hashing <span class="footnote-separator">·</span> Email OTP</span></div>
+        </aside>
+      </section>
+
+      <section id="operations-dashboard" class="operations-dashboard" aria-labelledby="operations-title" hidden>
+        <div class="dashboard-heading">
+          <div>
+            <p class="eyebrow">HOSTEL OPERATIONS</p>
+            <h2 id="operations-title">Hostel dashboard</h2>
+            <p id="dashboard-subtitle" class="dashboard-subtitle"></p>
+          </div>
+        </div>
+        <div id="dashboard-error" class="auth-message error" role="alert" hidden></div>
+        <div id="dashboard-content"></div>
+      </section>
+
+      <section id="admin-panel" class="admin-page" aria-labelledby="admin-title" hidden>
+        <div class="admin-page-heading">
+          <div>
+            <p class="eyebrow">ADMINISTRATION</p>
+            <h2 id="admin-title">Manage users and settings</h2>
+          </div>
+          <p class="dashboard-subtitle">Manage accounts and roles, recover archived users, and maintain backups.</p>
+        </div>
+        <div id="admin-message" class="auth-message" role="status" aria-live="polite" hidden></div>
+        <div class="admin-tabs" role="tablist" aria-label="User lists">
+          <button class="admin-tab active" id="active-users-tab" type="button" role="tab" aria-selected="true">Active users</button>
+          <button class="admin-tab" id="archived-users-tab" type="button" role="tab" aria-selected="false">Archived users</button>
+          <button class="admin-tab" id="backups-tab" type="button" role="tab" aria-selected="false">Backups</button>
+        </div>
+        <div id="admin-user-list" class="admin-user-list"></div>
+        <section id="admin-backups" class="admin-backups" hidden aria-label="Configuration backups">
+          <p class="auth-hint">Encrypted snapshots include user roles and system settings only. Hostel rooms and registrations are never restored.</p>
+          <button class="button button-primary auth-submit" id="create-backup-button" type="button">Create encrypted backup</button>
+          <div id="backup-list" class="admin-user-list"></div>
+          <article id="security-info" class="dashboard-card security-info" aria-label="Password security information"></article>
+        </section>
+      </section>
+
+      <section id="implementation-report-page" class="implementation-report-page" aria-labelledby="implementation-report-title" hidden>
+        <div class="dashboard-heading">
+          <div>
+            <p class="eyebrow">PROJECT DOCUMENTATION</p>
+            <h2 id="implementation-report-title">Haven implementation report</h2>
+            <p class="dashboard-subtitle">System design, security controls, hostel operations, and current account directory.</p>
+          </div>
+        </div>
+        <div id="implementation-report-error" class="auth-message error" role="alert" hidden></div>
+        <div id="implementation-report-content" class="implementation-report-content"></div>
+      </section>
+
+      <section class="roadmap" id="roadmap" aria-labelledby="roadmap-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">FROM FOUNDATION TO LAUNCH</p>
+            <h2 id="roadmap-title">The development roadmap</h2>
+          </div>
+          <p>Each layer builds on the last, with security and recoverability at the core.</p>
+        </div>
+        <ol class="roadmap-grid">
+          <li class="roadmap-item complete">
+            <span class="step-icon" aria-hidden="true">✓</span>
+            <p class="step-number">01 / FOUNDATION</p>
+            <h3>Database &amp; data model</h3>
+            <p>SQLite schema for users, roles, OTP challenges, rooms, registrations, settings, and audit history. Includes 50 fictional demo registrations.</p>
+            <span class="step-state">Complete</span>
+          </li>
+          <li class="roadmap-item">
+            <span class="step-icon" aria-hidden="true">02</span>
+            <p class="step-number">02 / IDENTITY</p>
+            <h3>Authentication &amp; 2FA</h3>
+            <p>Unique accounts, Argon2id password hashing with per-user salt and environment-stored pepper, then verified one-time codes.</p>
+            <span class="step-state">Demo ready</span>
+          </li>
+          <li class="roadmap-item">
+            <span class="step-icon" aria-hidden="true">03</span>
+            <p class="step-number">03 / ACCESS</p>
+            <h3>Roles &amp; permissions</h3>
+            <p>Main Admin, Hall Master/Mistress, Hall President, and Student access enforced in backend routes and reflected in the interface.</p>
+            <span class="step-state">Demo ready</span>
+          </li>
+          <li class="roadmap-item">
+            <span class="step-icon" aria-hidden="true">04</span>
+            <p class="step-number">04 / PROTECTION</p>
+            <h3>Data security &amp; archive</h3>
+            <p>Archive and restore user accounts with audit history. No payment card details are collected or stored by this demo.</p>
+            <span class="step-state">Archive demo ready</span>
+          </li>
+          <li class="roadmap-item">
+            <span class="step-icon" aria-hidden="true">05</span>
+            <p class="step-number">05 / RESILIENCE</p>
+            <h3>Backup &amp; restore</h3>
+            <p>Encrypted local restore points cover roles and settings only; they never change hostel rooms or registrations. AWS upload is not configured.</p>
+            <span class="step-state">Encrypted local demo</span>
+          </li>
+          <li class="roadmap-item">
+            <span class="step-icon" aria-hidden="true">06</span>
+            <p class="step-number">06 / EXPERIENCE</p>
+            <h3>Dashboard &amp; reports</h3>
+            <p>Responsive Haven Hall registration, room assignment/moves, resident check-in/out, occupancy, and report drill-downs.</p>
+            <span class="step-state">Dashboard demo ready</span>
+          </li>
+        </ol>
+      </section>
+      <footer><span>HAVEN HOSTEL MANAGEMENT</span><span>Built with security at every layer.</span></footer>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
