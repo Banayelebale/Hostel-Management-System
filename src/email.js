@@ -35,4 +35,4 @@
     subject: "Your Haven Hostel sign-in code",
     text: `Your Haven Hostel verification code is ${code}.\n\nIt expires in five minutes. If you did not try to sign in, you can ignore this email.`
   });
-}
+
