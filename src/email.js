@@ -14,24 +14,26 @@ export function createOtpEmailSender(env = process.env) {
     ["true", true],
     ["1", true],
     ["yes", true],
-    ["on", true],
     ["ssl", true],
     ["smtps", true],
     ["false", false],
     ["0", false],
     ["no", false],
-    ["off", false],
-    ["starttls", false],
     ["tls", false],
+    ["starttls", false],
     ["plain", false],
     ["none", false]
   ]);
-
-  const secure = secureSetting
-    ? (secureSetting === "auto" ? port === 465 : secureValues.get(secureSetting))
-    : port === 465;
-  if (secure === undefined) {
-    throw new Error("SMTP_SECURE must be true/false, yes/no, SSL/SMTPS, STARTTLS/TLS, or AUTO.");
+  let secure = port === 465;
+  if (secureSetting && secureSetting !== "auto") {
+    const configuredSecure = secureValues.get(secureSetting);
+    if (configuredSecure === undefined) {
+      console.warn(
+        `Unrecognized SMTP_SECURE value "${secureSetting}"; selecting SMTP security from port ${port}. Use true/false or auto.`
+      );
+    } else {
+      secure = configuredSecure;
+    }
   }
   if (Boolean(env.SMTP_USER) !== Boolean(env.SMTP_PASSWORD)) {
     throw new Error("Configure both SMTP_USER and SMTP_PASSWORD, or leave both empty.");
