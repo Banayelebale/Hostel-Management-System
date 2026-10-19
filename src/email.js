@@ -1,19 +1,4 @@
-import nodemailer from "nodemailer";
 
-export function createOtpEmailSender(env = process.env) {
-  const host = env.SMTP_HOST?.trim();
-  if (!host) return null;
-
-  const configuredPort = env.SMTP_PORT?.trim();
-  const port = Number(configuredPort || 587);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error("SMTP_PORT must be a number from 1 to 65535 (usually 587 or 465).");
-  }
-  const secureSetting = env.SMTP_SECURE?.trim().toLowerCase();
-  const secureValues = new Map([
-    ["true", true],
-    ["1", true],
-    ["yes", true],
     ["ssl", true],
     ["smtps", true],
     ["false", false],
