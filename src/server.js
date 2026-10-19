@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAuth } from "./auth.js";
 import { createConfigBackupStore } from "./backups.js";
+import { bootstrapInitialAdmin } from "./bootstrap-admin.js";
 import { createOtpEmailSender } from "./email.js";
 import { createOperations } from "./operations.js";
 import db from "./db.js";
@@ -333,8 +334,9 @@ const server = http.createServer(async (request, response) => {
   }
 });
 
+await bootstrapInitialAdmin(db);
 server.listen(port, () => {
-  console.log(`Hostel Management System is running at http://localhost:${port}`);
+  console.log(`Hostel Management System is running on port ${port}`);
 });
 
 function closeServer() {
