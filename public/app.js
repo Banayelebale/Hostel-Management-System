@@ -189,6 +189,37 @@ if (otpForm) {
     otpInput.setAttribute("pattern", "[0-9]{6}");
   }
 
+// --- NAVIGATION LINK CLICK INTERCEPTORS ---
+if (dashboardLink) {
+  dashboardLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateTo("/dashboard");
+  });
+}
+
+if (reportsLink) {
+  reportsLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateTo("/reports");
+  });
+}
+
+if (adminLink) {
+  adminLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateTo("/admin");
+  });
+}
+
+if (implementationReportLink) {
+  implementationReportLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateTo("/implementation-report");
+  });
+}
+
+
+
   otpForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const code = otpInput?.value?.trim();
