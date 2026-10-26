@@ -1704,21 +1704,12 @@ registerForm.addEventListener("submit", async (event) => {
   }
 });
 
-document.querySelector("#otp-code").addEventListener("input", (event) => {
-  event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6);
-});
-
 otpForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const code = otpForm.elements.code.value.trim();
-  if (!/^\d{6}$/.test(code)) {
-    showMessage("Enter the full six-digit verification code.", true);
-    return;
-  }
   try {
     const result = await api("/api/auth/verify-otp", {
       email: pendingEmail,
-      code
+      code: otpForm.elements.code.value
     });
     showSignedIn(result.user);
   } catch (error) {
