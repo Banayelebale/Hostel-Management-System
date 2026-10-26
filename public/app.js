@@ -19,6 +19,10 @@ const dashboardLink = document.querySelector("#dashboard-link");
 const reportsLink = document.querySelector("#reports-link");
 const adminLink = document.querySelector("#admin-link");
 const implementationReportLink = document.querySelector("#implementation-report-link");
+const mobileNavigation = document.querySelector("#mobile-navigation");
+const mobileDashboardLink = document.querySelector("#mobile-dashboard-link");
+const mobileReportsLink = document.querySelector("#mobile-reports-link");
+const mobileAdminLink = document.querySelector("#mobile-admin-link");
 const operationsDashboard = document.querySelector("#operations-dashboard");
 const implementationReportPage = document.querySelector("#implementation-report-page");
 const implementationReportContent = document.querySelector("#implementation-report-content");
@@ -46,6 +50,7 @@ function showMessage(text, isError = false) {
 function requireSignIn(messageText = "Your sign-in session has expired. Please sign in again.") {
   dashboardRole = "";
   appNavigation.hidden = true;
+  mobileNavigation.hidden = true;
   operationsDashboard.hidden = true;
   adminPanel.hidden = true;
   implementationReportPage.hidden = true;
@@ -68,6 +73,7 @@ function showPanel(panel) {
   otpForm.hidden = panel !== "otp";
   signedInPanel.hidden = !authenticated;
   appNavigation.hidden = !authenticated;
+  mobileNavigation.hidden = !authenticated;
   if (panel === "login" || panel === "register" || panel === "otp") {
     operationsDashboard.hidden = true;
     adminPanel.hidden = true;
@@ -103,6 +109,8 @@ function showSignedIn(user, redirect = true) {
   reportsLink.hidden = !["main_admin", "hall_master", "hall_president"].includes(user.role);
   adminLink.hidden = user.role !== "main_admin";
   implementationReportLink.hidden = user.role !== "main_admin";
+  mobileReportsLink.hidden = !["main_admin", "hall_master", "hall_president"].includes(user.role);
+  mobileAdminLink.hidden = user.role !== "main_admin";
   if (redirect) {
     const destination = user.role === "main_admin" ? "/admin" : "/dashboard";
     navigateTo(destination, true);
@@ -154,6 +162,9 @@ function renderCurrentRoute(redirectInvalid = false) {
   reportsLink.setAttribute("aria-current", isReports ? "page" : "false");
   adminLink.setAttribute("aria-current", isAdmin ? "page" : "false");
   implementationReportLink.setAttribute("aria-current", isImplementationReport ? "page" : "false");
+  mobileDashboardLink.setAttribute("aria-current", route === "/dashboard" ? "page" : "false");
+  mobileReportsLink.setAttribute("aria-current", isReports ? "page" : "false");
+  mobileAdminLink.setAttribute("aria-current", isAdmin ? "page" : "false");
 
   if (isAdmin) {
     loadAdminUsers("active");
@@ -1263,6 +1274,9 @@ async function loadAdminUsers(list = "active") {
             return cell;
           };
           row.append(roleCell, protectedCell(), protectedCell(), protectedCell(), protectedCell());
+          row.querySelectorAll(":scope > td").forEach((cell, index) => {
+            cell.dataset.label = columns[index];
+          });
           body.append(row);
           continue;
         }
@@ -1421,6 +1435,9 @@ async function loadAdminUsers(list = "active") {
         row.append(roleCell, changeRoleCell, modifyCell, archiveCell, deleteCell);
         body.append(row, editorRow);
       }
+      row.querySelectorAll(":scope > td").forEach((cell, index) => {
+        cell.dataset.label = columns[index];
+      });
       if (archived) body.append(row);
     }
   } catch (error) {
@@ -1644,7 +1661,7 @@ document.querySelector("#create-backup-button").addEventListener("click", async 
   }
 });
 
-for (const link of [dashboardLink, reportsLink, adminLink, implementationReportLink]) {
+for (const link of [dashboardLink, reportsLink, adminLink, implementationReportLink, mobileDashboardLink, mobileReportsLink, mobileAdminLink]) {
   link.addEventListener("click", (event) => {
     if (link.hidden || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -1687,12 +1704,21 @@ registerForm.addEventListener("submit", async (event) => {
   }
 });
 
+document.querySelector("#otp-code").addEventListener("input", (event) => {
+  event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6);
+});
+
 otpForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const code = otpForm.elements.code.value.trim();
+  if (!/^\d{6}$/.test(code)) {
+    showMessage("Enter the full six-digit verification code.", true);
+    return;
+  }
   try {
     const result = await api("/api/auth/verify-otp", {
       email: pendingEmail,
-      code: otpForm.elements.code.value
+      code
     });
     showSignedIn(result.user);
   } catch (error) {
@@ -1707,6 +1733,7 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
     await api("/api/auth/logout", {});
     dashboardRole = "";
     appNavigation.hidden = true;
+    mobileNavigation.hidden = true;
     adminPanel.hidden = true;
     history.replaceState(null, "", "/");
     showPanel("login");
