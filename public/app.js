@@ -243,3 +243,19 @@ if (implementationReportLink) {
     }
   });
 }
+
+async function restoreSession() {
+  try {
+    const response = await fetch("/api/auth/me");
+    const result = await response.json();
+    if (!response.ok || !result.user) {
+      showPanel("login");
+      return;
+    }
+    showSignedIn(result.user, location.pathname !== "/");
+  } catch {
+    showPanel("login");
+  }
+}
+
+restoreSession();
