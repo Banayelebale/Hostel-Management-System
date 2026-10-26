@@ -348,13 +348,3 @@ function closeServer() {
 
 process.on("SIGINT", closeServer);
 process.on("SIGTERM", closeServer);
-app.use(session({
-  secret: process.env.SESSION_SECRET || "your-secret",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: true, // Required for Render's HTTPS
-    sameSite: 'none', // Allows cookie persistence across browser requests
-    maxAge: 1000 * 60 * 60 * 24 // 1 day session duration
-  }
-}));
